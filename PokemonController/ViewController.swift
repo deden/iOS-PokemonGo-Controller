@@ -14,7 +14,7 @@ import SwiftyJSON
 
 class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
 
-    let FLASK_SERVER: String = "http://192.168.1.6:5000/"
+    let FLASK_SERVER: String = "http://192.168.1.6:5000"
 
     
     @IBOutlet weak var mapView: MKMapView!
@@ -222,7 +222,8 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
     }
     
     func setNextLocation (coord:CLLocationCoordinate2D) {
-        Alamofire.request(.GET, "\(FLASK_SERVER)/next_loc", parameters: ["lat": coord.latitude, "lon" : coord.longitude ])
+         let url = "\(FLASK_SERVER)/next_loc"
+        Alamofire.request(.GET, url, parameters: ["lat": coord.latitude, "lon" : coord.longitude ])
             .validate()
             .response { request, response, data, error in
                 print(response)
@@ -308,7 +309,8 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
     }
     
     func loadPokemapData() {
-        Alamofire.request(.GET, "\(FLASK_SERVER)/raw_data")
+        let url =  "\(FLASK_SERVER)/raw_data"
+        Alamofire.request(.GET, url)
             .responseJSON { response in
                 if let json = response.result.value {
                     let swiftyJsonVar = JSON(json)
