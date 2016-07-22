@@ -1,0 +1,23 @@
+PODS:
+  - Alamofire (3.4.1)
+  - CCHMapClusterController (1.7.0)
+  - GCDWebServer (3.3.3):
+    - GCDWebServer/Core (= 3.3.3)
+  - GCDWebServer/Core (3.3.3)
+  - SwiftyJSON (2.3.2)
+
+DEPENDENCIES:
+  - Alamofire (~> 3.4)
+  - CCHMapClusterController
+  - GCDWebServer
+  - SwiftyJSON
+
+SPEC CHECKSUMS:
+  Alamofire: 01a82e2f6c0f860ade35534c8dd88be61bdef40c
+  CCHMapClusterController: d8cd12cd5682ec6cd76d911ac7198f981b6cc1b8
+  GCDWebServer: 1c39a1f0763e4eb492bee021e4270fce097d3555
+  SwiftyJSON: 04ccea08915aa0109039157c7974cf0298da292a
+
+PODFILE CHECKSUM: dab6c1b2f9581b331b47c750201acc285a0e7d6f
+
+COCOAPODS: 1.0.1
