@@ -14,7 +14,7 @@ import SwiftyJSON
 
 class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
 
-    let FLASK_SERVER: String = "http://192.168.1.6:5000"
+    let FLASK_SERVER: String = "http://192.168.1.5:5000"
 
     
     @IBOutlet weak var mapView: MKMapView!
@@ -31,6 +31,8 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
     var currentPlayer:Player?
     var webServer:GCDWebServer = GCDWebServer()
     
+    var loadmapScheduler:NSTimer?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -46,9 +48,18 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
         mapView.addAnnotations(gyms)
         mapView.addAnnotations(pokemons)
         mapView.addAnnotations(pokestops)
-        
         loadPokemapData()
+        loadmapScheduler = NSTimer.scheduledTimerWithTimeInterval(15.0,
+                                                               target: self,
+                                                               selector: #selector(self.tick),
+                                                               userInfo: nil,
+                                                               repeats: true)
+        
         createPlayer("You")
+    }
+    
+    @objc func tick() {
+        loadPokemapData()
     }
     
     override func didReceiveMemoryWarning() {
@@ -95,7 +106,7 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
         } else if (annotation is Gym) {
             let gym = annotation as! Gym
             returnedAnnotationView = Gym.createViewAnnotationForMapView(self.mapView, annotation: gym)
-            let imageName:String = gym.teamId == 0 ? "Gym" : gym.teamId == 1 ? "Mystic" : gym.teamId == 2 ? "Valor" : "Instict"
+            let imageName:String = gym.teamId == 0 ? "Gym" : gym.teamId == 1 ? "Mystic" : gym.teamId == 2 ? "Valor" : "Instinct"
             returnedAnnotationView!.image = UIImage(named:imageName)
             assignRightAccView(returnedAnnotationView)
         } else if (annotation is Pokemon) {
@@ -107,7 +118,7 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
         } else if (annotation is Pokestop) {
             let pokestop = annotation as! Pokestop
             returnedAnnotationView = Pokestop.createViewAnnotationForMapView(self.mapView, annotation: pokestop)
-            returnedAnnotationView!.image = UIImage(named:"Pstop")
+            returnedAnnotationView!.image = pokestop.lureDisappearTime != "" ? UIImage(named:"PstopLured") : UIImage(named:"Pstop")
             assignRightAccView(returnedAnnotationView)
         }
         
@@ -344,8 +355,12 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                     if let arrayPokestops = swiftyJsonVar["pokestops"].dictionaryObject {
                         for (_, val) in arrayPokestops {
                             let a:Array = JSON(val).arrayValue
+                            var lureDisappearTime: String = ""
+                            if a[2].intValue != 0 {
+                                lureDisappearTime = a[2].stringValue
+                            }
                             let c = CLLocationCoordinate2D(latitude: a[0].doubleValue, longitude: a[1].doubleValue)
-                            let pokestop = Pokestop(coordinate: c)
+                            let pokestop = Pokestop(coordinate: c, lureDisappearTime: lureDisappearTime)
                             ps.append(pokestop)
                         }
                     }

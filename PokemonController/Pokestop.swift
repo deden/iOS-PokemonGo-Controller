@@ -11,14 +11,19 @@ import MapKit
 
 class Pokestop: NSObject, MKAnnotation {
     let coordinate: CLLocationCoordinate2D
-    
-    init(coordinate: CLLocationCoordinate2D) {
+    let lureDisappearTime:String
+    init(coordinate: CLLocationCoordinate2D, lureDisappearTime:String = "") {
         self.coordinate = coordinate
+        self.lureDisappearTime = lureDisappearTime
         super.init()
     }
     
     var title: String? {
-        return "Pokestop"
+        if lureDisappearTime != "" {
+            return "Lured Pokestop expires at \(lureDisappearTime)"
+        } else {
+            return "Pokestop"
+        }
     }
     
     class func createViewAnnotationForMapView(mapview: MKMapView, annotation: MKAnnotation) -> MKAnnotationView {
