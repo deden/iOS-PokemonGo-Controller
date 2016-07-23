@@ -54,6 +54,7 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                                                                selector: #selector(self.tick),
                                                                userInfo: nil,
                                                                repeats: true)
+        mapCenterCoordinate = mapView.centerCoordinate
         
         createPlayer("You")
     }
@@ -118,7 +119,15 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
         } else if (annotation is Pokestop) {
             let pokestop = annotation as! Pokestop
             returnedAnnotationView = Pokestop.createViewAnnotationForMapView(self.mapView, annotation: pokestop)
-            returnedAnnotationView!.image = pokestop.lureDisappearTime != "" ? UIImage(named:"PstopLured") : UIImage(named:"Pstop")
+            if pokestop.lureDisappearTime != 0 {
+                let epocTime = NSTimeInterval(pokestop.lureDisappearTime/1000)
+                let nowTimestamp = NSDate().timeIntervalSince1970
+                returnedAnnotationView!.image = epocTime > nowTimestamp ? UIImage(named:"PstopLured") : UIImage(named:"Pstop")
+            } else {
+                returnedAnnotationView!.image = UIImage(named:"Pstop")
+            }
+            
+            
             assignRightAccView(returnedAnnotationView)
         }
         
@@ -233,8 +242,9 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
     }
     
     func setNextLocation (coord:CLLocationCoordinate2D) {
-         let url = "\(FLASK_SERVER)/next_loc"
-        Alamofire.request(.GET, url, parameters: ["lat": coord.latitude, "lon" : coord.longitude ])
+        let url = "\(FLASK_SERVER)/next_loc?lat=\(coord.latitude)&lon=\(coord.longitude)"
+        //let params:[String:Double] = ["lat": coord.latitude, "lon" : coord.longitude ]
+        Alamofire.request(.POST, url)
             .validate()
             .response { request, response, data, error in
                 print(response)
@@ -320,7 +330,7 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
     }
     
     func loadPokemapData() {
-        let url =  "\(FLASK_SERVER)/raw_data"
+        let url =  "\(FLASK_SERVER)/raw_data?pokestops=true&scanned=false"
         Alamofire.request(.GET, url)
             .responseJSON { response in
                 if let json = response.result.value {
@@ -330,21 +340,20 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                     var p = [Pokemon]()
                     var ps = [Pokestop]()
                     
-                    if let arrayGym = swiftyJsonVar["gyms"].dictionaryObject {
-                        for (_, val) in arrayGym {
-                            let a:Array = JSON(val).arrayValue
-                            let c = CLLocationCoordinate2D(latitude: a[1].doubleValue, longitude: a[2].doubleValue)
-                            let gym = Gym(coordinate:c, teamId: a[0].intValue, prestige: a[3].intValue)
+                    if let arrayGym = swiftyJsonVar["gyms"].array {
+                        for a in arrayGym {
+                            let c = CLLocationCoordinate2D(latitude: a["latitude"].doubleValue, longitude: a["longitude"].doubleValue)
+                            let gym = Gym(coordinate:c, teamId: a["team_id"].intValue, prestige: a["gym_points"].intValue)
                             g.append(gym)
                         }
                     }
-                    if let arrayPokemons = swiftyJsonVar["pokemons"].dictionaryObject {
-                        for (_, val) in arrayPokemons {
-                            let a:Dictionary = JSON(val).dictionaryValue
-                            let c = CLLocationCoordinate2D(latitude: a["lat"]!.doubleValue, longitude: a["lng"]!.doubleValue)
-                            let pokemon = Pokemon(coordinate: c, pokemonId: a["id"]!.intValue, disappear_time: a["disappear_time"]!.intValue, name: a["name"]!.stringValue)
-                            
-                            let epocTime = NSTimeInterval(pokemon.disappear_time)
+
+                    
+                    if let arrayPokemons = swiftyJsonVar["pokemons"].array {
+                        for a in arrayPokemons {
+                            let c = CLLocationCoordinate2D(latitude: a["latitude"].doubleValue, longitude: a["longitude"].doubleValue)
+                            let pokemon = Pokemon(coordinate: c, pokemonId: a["pokemon_id"].intValue, disappear_time: a["disappear_time"].doubleValue, name: a["pokemon_name"].stringValue)
+                            let epocTime = NSTimeInterval(pokemon.disappear_time/1000)
                             let nowTimestamp = NSDate().timeIntervalSince1970
                             if (epocTime > nowTimestamp) {
                                 p.append(pokemon)
@@ -352,15 +361,10 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                         }
                     }
                     
-                    if let arrayPokestops = swiftyJsonVar["pokestops"].dictionaryObject {
-                        for (_, val) in arrayPokestops {
-                            let a:Array = JSON(val).arrayValue
-                            var lureDisappearTime: String = ""
-                            if a[2].intValue != 0 {
-                                lureDisappearTime = a[2].stringValue
-                            }
-                            let c = CLLocationCoordinate2D(latitude: a[0].doubleValue, longitude: a[1].doubleValue)
-                            let pokestop = Pokestop(coordinate: c, lureDisappearTime: lureDisappearTime)
+                    if let arrayPokestops = swiftyJsonVar["pokestops"].array {
+                        for a in arrayPokestops {
+                            let c = CLLocationCoordinate2D(latitude: a["latitude"].doubleValue, longitude: a["longitude"].doubleValue)
+                            let pokestop = Pokestop(coordinate: c, lureDisappearTime: a["lure_expiration"].doubleValue)
                             ps.append(pokestop)
                         }
                     }

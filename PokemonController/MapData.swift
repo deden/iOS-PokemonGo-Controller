@@ -35,9 +35,9 @@ class MapData: NSObject {
     
     @objc class func tick() {
         for annotation in MapData.map.annotations {
-            if (annotation is Pokemon) {
+            if annotation is Pokemon {
                 let pokemon = annotation as! Pokemon
-                let epocTime = NSTimeInterval(pokemon.disappear_time)
+                let epocTime = NSTimeInterval(pokemon.disappear_time/1000)
                 let nowTimestamp = NSDate().timeIntervalSince1970
                 let elapsed = epocTime - nowTimestamp
                 if (elapsed > 0) {
@@ -45,6 +45,21 @@ class MapData: NSObject {
                     pokemon.title = "\(pokemon.name) \(elapsedFormat)"
                 } else {
                     pokemon.title = "\(pokemon.name) expired"
+                }
+            } else if annotation is Pokestop {
+                let pokestop = annotation as! Pokestop
+                let epocTime = NSTimeInterval(pokestop.lureDisappearTime/1000)
+                if (epocTime > 0) {
+                    let nowTimestamp = NSDate().timeIntervalSince1970
+                    let elapsed = epocTime - nowTimestamp
+                    let elapsedFormat = MapData.stringFromTimeInterval(elapsed)
+                    if (elapsed > 0) {
+                        pokestop.title = "Lured Pokestop, expires in \(elapsedFormat)"
+                    } else {
+                        pokestop.title = "Pokestop"
+                    }
+                } else {
+                    pokestop.title = "Pokestop"
                 }
             }
         }

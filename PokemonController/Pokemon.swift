@@ -13,24 +13,17 @@ class Pokemon: NSObject, MKAnnotation {
     let name: String
     let coordinate: CLLocationCoordinate2D
     let pokemonId:Int
-    //let disappear_time_formatted: String
-    let disappear_time:Int
+    let disappear_time:NSTimeInterval
     
     dynamic var title: String?
     
-    init(coordinate: CLLocationCoordinate2D, pokemonId:Int, disappear_time:Int, name:String) {
+    init(coordinate: CLLocationCoordinate2D, pokemonId:Int, disappear_time:NSTimeInterval, name:String) {
         self.coordinate = coordinate
         self.pokemonId = pokemonId
         self.disappear_time = disappear_time
         self.name = name
         super.init()
     }
-    
-    /*
-    var title: String? {
-        return "\(name) (\(disappear_time))"
-    }
-     */
     
     class func createViewAnnotationForMapView(mapview: MKMapView, annotation: MKAnnotation) -> MKAnnotationView {
         var returnedAnnotationView =

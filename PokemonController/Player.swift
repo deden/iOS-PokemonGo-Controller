@@ -89,8 +89,8 @@ class Player: NSObject, MKAnnotation {
         let vDist: CLLocationDistance = targetPoint.y - currentPoint.y
         
         let angleRad = atan2(vDist, hDist)
-        let vx = cos(angleRad) * 30
-        let vy = sin(angleRad) * 30
+        let vx = cos(angleRad) * 35
+        let vy = sin(angleRad) * 35
         
         let nextPoint:MKMapPoint = MKMapPointMake(currentPoint.x + vx, currentPoint.y + vy)
         coordinate = MKCoordinateForMapPoint(nextPoint)
