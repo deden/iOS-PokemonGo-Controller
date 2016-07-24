@@ -15,6 +15,12 @@ import SwiftyJSON
 class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
 
     let FLASK_SERVER: String = "http://192.168.1.5:5000"
+    
+    enum LatestAction : String {
+        case Walk = "walk", Run = "run", Jump = "jump"
+    }
+    
+    var latestAction: LatestAction = .Walk
 
     
     @IBOutlet weak var mapView: MKMapView!
@@ -150,13 +156,16 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                 let alert = UIAlertController(title: currentPlayer?.name, message:flag.title, preferredStyle: .Alert)
                 if currentPlayer != nil {
                     alert.addAction(UIAlertAction(title: "Walk here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.latestAction = .Walk
                         self.currentPlayer?.moveToLocation(flag.coordinate)
                     }))
                     alert.addAction(UIAlertAction(title: "Run here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.latestAction = .Run
                         self.currentPlayer?.moveToLocation(flag.coordinate, shouldRun: true)
                     }))
                     
                     alert.addAction(UIAlertAction(title: "Jump here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.latestAction = .Jump
                         self.currentPlayer?.jumpToLocation(flag.coordinate)
                     }))
                     
@@ -172,7 +181,15 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                 
             } else {
                 if currentPlayer != nil {
-                    self.currentPlayer?.moveToLocation(flag.coordinate)
+                    if latestAction == .Walk {
+                        self.currentPlayer?.moveToLocation(flag.coordinate)
+                    } else if latestAction == .Run {
+                        self.currentPlayer?.moveToLocation(flag.coordinate, shouldRun: true)
+                    } else if latestAction == .Jump {
+                        self.currentPlayer?.jumpToLocation(flag.coordinate)
+                    } else {
+                        // why!!!
+                    }
                 }
             }
         } else if (view.annotation is Player) {
@@ -183,20 +200,29 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                 let alert = UIAlertController(title: currentPlayer?.name, message:view.annotation!.title!, preferredStyle: .Alert)
                 if currentPlayer != nil {
                     alert.addAction(UIAlertAction(title: "Walk here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.latestAction = .Walk
                         self.currentPlayer?.moveToLocation(view.annotation!.coordinate)
                     }))
                     alert.addAction(UIAlertAction(title: "Run here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.latestAction = .Run
                         self.currentPlayer?.moveToLocation(view.annotation!.coordinate, shouldRun: true)
                     }))
                     alert.addAction(UIAlertAction(title: "Jump here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.latestAction = .Jump
                         self.currentPlayer?.jumpToLocation(view.annotation!.coordinate)
                     }))
                 }
                 alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
                 self.presentViewController(alert, animated: true){}
             } else {
-                if currentPlayer != nil {
+                if latestAction == .Walk {
                     self.currentPlayer?.moveToLocation(view.annotation!.coordinate)
+                } else if latestAction == .Run {
+                    self.currentPlayer?.moveToLocation(view.annotation!.coordinate, shouldRun: true)
+                } else if latestAction == .Jump {
+                    self.currentPlayer?.jumpToLocation(view.annotation!.coordinate)
+                } else {
+                    // why!!!
                 }
             }
         }
