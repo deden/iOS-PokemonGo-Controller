@@ -73,12 +73,20 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
         saveLocation()
     }
     
-    func assignRightAccView (returnedAnnotationView: MKAnnotationView!) {
+    func assignLeftAccView (returnedAnnotationView: MKAnnotationView!) {
         let destinationImage = UIImage(named: "cplus")! as UIImage
         let lbtn = UIButton(type: .Custom)
         lbtn.frame = CGRectMake(0, 0, 40, 40);
         lbtn.setBackgroundImage(destinationImage, forState: .Normal)
         returnedAnnotationView!.leftCalloutAccessoryView = lbtn
+    }
+    
+    func assignRightAccMenuView (returnedAnnotationView: MKAnnotationView!) {
+        let menuImage = UIImage(named: "menu")! as UIImage
+        let btn = UIButton(type: .Custom)
+        btn.frame = CGRectMake(0, 0, 40, 40);
+        btn.setBackgroundImage(menuImage, forState: .Normal)
+        returnedAnnotationView!.rightCalloutAccessoryView = btn
     }
     
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
@@ -98,24 +106,22 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
         } else if (annotation is Flag){
             returnedAnnotationView = Flag.createViewAnnotationForMapView(self.mapView, annotation: annotation)
             returnedAnnotationView!.image = UIImage(named: "flag")
-            let menuImage = UIImage(named: "menu")! as UIImage
-            let btn = UIButton(type: .Custom)
-            btn.frame = CGRectMake(0, 0, 40, 40);
-            btn.setBackgroundImage(menuImage, forState: .Normal)
-            returnedAnnotationView!.rightCalloutAccessoryView = btn
-            assignRightAccView(returnedAnnotationView)
+            assignLeftAccView(returnedAnnotationView)
+            assignRightAccMenuView(returnedAnnotationView)
         } else if (annotation is Gym) {
             let gym = annotation as! Gym
             returnedAnnotationView = Gym.createViewAnnotationForMapView(self.mapView, annotation: gym)
             let imageName:String = gym.teamId == 0 ? "Gym" : gym.teamId == 1 ? "Mystic" : gym.teamId == 2 ? "Valor" : "Instinct"
             returnedAnnotationView!.image = UIImage(named:imageName)
-            assignRightAccView(returnedAnnotationView)
+            assignLeftAccView(returnedAnnotationView)
+            assignRightAccMenuView(returnedAnnotationView)
         } else if (annotation is Pokemon) {
             let pokemon = annotation as! Pokemon
             returnedAnnotationView = Pokemon.createViewAnnotationForMapView(self.mapView, annotation: pokemon)
             let imageName:String = String(pokemon.pokemonId)
             returnedAnnotationView!.image = UIImage(named:imageName)
-            assignRightAccView(returnedAnnotationView)
+            assignLeftAccView(returnedAnnotationView)
+            assignRightAccMenuView(returnedAnnotationView)
         } else if (annotation is Pokestop) {
             let pokestop = annotation as! Pokestop
             returnedAnnotationView = Pokestop.createViewAnnotationForMapView(self.mapView, annotation: pokestop)
@@ -126,9 +132,8 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
             } else {
                 returnedAnnotationView!.image = UIImage(named:"Pstop")
             }
-            
-            
-            assignRightAccView(returnedAnnotationView)
+            assignLeftAccView(returnedAnnotationView)
+            assignRightAccMenuView(returnedAnnotationView)
         }
         
         return returnedAnnotationView
@@ -174,8 +179,25 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
             //let player = view.annotation as! Player
             //selectPlayer(player)
         } else if (view.annotation is Gym || view.annotation is Pokemon || view.annotation is Pokestop) {
-            if (currentPlayer != nil) {
-                currentPlayer?.moveToLocation((view.annotation?.coordinate)!)
+            if control == view.rightCalloutAccessoryView {
+                let alert = UIAlertController(title: currentPlayer?.name, message:view.annotation!.title!, preferredStyle: .Alert)
+                if currentPlayer != nil {
+                    alert.addAction(UIAlertAction(title: "Walk here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.currentPlayer?.moveToLocation(view.annotation!.coordinate)
+                    }))
+                    alert.addAction(UIAlertAction(title: "Run here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.currentPlayer?.moveToLocation(view.annotation!.coordinate, shouldRun: true)
+                    }))
+                    alert.addAction(UIAlertAction(title: "Jump here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.currentPlayer?.jumpToLocation(view.annotation!.coordinate)
+                    }))
+                }
+                alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
+                self.presentViewController(alert, animated: true){}
+            } else {
+                if currentPlayer != nil {
+                    self.currentPlayer?.moveToLocation(view.annotation!.coordinate)
+                }
             }
         }
     }
