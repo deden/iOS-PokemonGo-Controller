@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PokemonController/ViewController.swift"
-            timestampString = "490980002.399921"
+            timestampString = "491012392.276172"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "356"
-            endingLineNumber = "356"
+            startingLineNumber = "359"
+            endingLineNumber = "359"
             landmarkName = "loadPokemapData()"
             landmarkType = "5">
          </BreakpointContent>
@@ -27,11 +27,11 @@
             condition = "a[&quot;lure_expiration&quot;].doubleValue &gt; 0"
             continueAfterRunningActions = "No"
             filePath = "PokemonController/ViewController.swift"
-            timestampString = "490980002.399921"
+            timestampString = "491012392.276172"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "366"
-            endingLineNumber = "366"
+            startingLineNumber = "369"
+            endingLineNumber = "369"
             landmarkName = "loadPokemapData()"
             landmarkType = "5">
          </BreakpointContent>

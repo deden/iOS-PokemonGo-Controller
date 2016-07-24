@@ -17,9 +17,12 @@ protocol PlayerDelegate{
 }
 
 class Player: NSObject, MKAnnotation {
+    let WALK_SPEED:Double = 35.0
+    let RUN_SPEED:Double = 170.0
     
     var delegate:PlayerDelegate!
     var playerOverlay:MKCircle!
+    var currentSpeed:Double!
     
     let name:String?
     var isMoving:Bool
@@ -37,9 +40,9 @@ class Player: NSObject, MKAnnotation {
         super.init()
     }
     
-    func moveToLocation (targetLoc:CLLocationCoordinate2D) {
+    func moveToLocation (targetLoc:CLLocationCoordinate2D, shouldRun:Bool = false) {
         self.targetCoordinate = targetLoc
-        
+        self.currentSpeed = shouldRun ? RUN_SPEED : WALK_SPEED
         self.resetTimer()
         self.startTimer()
     }
@@ -89,8 +92,8 @@ class Player: NSObject, MKAnnotation {
         let vDist: CLLocationDistance = targetPoint.y - currentPoint.y
         
         let angleRad = atan2(vDist, hDist)
-        let vx = cos(angleRad) * 35
-        let vy = sin(angleRad) * 35
+        let vx = cos(angleRad) * currentSpeed
+        let vy = sin(angleRad) * currentSpeed
         
         let nextPoint:MKMapPoint = MKMapPointMake(currentPoint.x + vx, currentPoint.y + vy)
         coordinate = MKCoordinateForMapPoint(nextPoint)

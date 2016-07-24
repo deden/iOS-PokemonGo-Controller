@@ -147,6 +147,9 @@ class ViewController: UIViewController, MKMapViewDelegate, PlayerDelegate {
                     alert.addAction(UIAlertAction(title: "Walk here", style: .Default, handler: { (action: UIAlertAction!) in
                         self.currentPlayer?.moveToLocation(flag.coordinate)
                     }))
+                    alert.addAction(UIAlertAction(title: "Run here", style: .Default, handler: { (action: UIAlertAction!) in
+                        self.currentPlayer?.moveToLocation(flag.coordinate, shouldRun: true)
+                    }))
                     
                     alert.addAction(UIAlertAction(title: "Jump here", style: .Default, handler: { (action: UIAlertAction!) in
                         self.currentPlayer?.jumpToLocation(flag.coordinate)
